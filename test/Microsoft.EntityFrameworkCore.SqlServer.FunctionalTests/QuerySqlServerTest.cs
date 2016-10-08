@@ -93,6 +93,28 @@ WHERE [c].[CustomerID] = N'ANATR'",
                 Sql);
         }
 
+        public override void Entity_equality_null()
+        {
+            base.Entity_equality_null();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NULL",
+                Sql);
+        }
+
+        public override void Entity_equality_not_null()
+        {
+            base.Entity_equality_not_null();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IS NOT NULL",
+                Sql);
+        }
+
         public override void Queryable_reprojection()
         {
             base.Queryable_reprojection();
@@ -6224,6 +6246,28 @@ FROM (
         WHERE [c0].[City] = N'London'
     ) AS [t0] ON 1 = 1
 ) AS [t1]",
+                Sql);
+        }
+
+        public override void DefaultIfEmpty_in_subquery()
+        {
+            base.DefaultIfEmpty_in_subquery();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [t1].[OrderID]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [t0].*
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty0]
+    LEFT JOIN (
+        SELECT [o0].*
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = [c].[CustomerID]
+    ) AS [t0] ON 1 = 1
+) AS [t1]
+WHERE [t1].[OrderID] IS NOT NULL",
                 Sql);
         }
 

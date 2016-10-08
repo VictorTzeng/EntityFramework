@@ -96,6 +96,24 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
         }
 
         [ConditionalFact]
+        public virtual void Entity_equality_null()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                where c == null
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_equality_not_null()
+        {
+            AssertQuery<Customer>(cs =>
+                from c in cs
+                where c != null
+                select c.CustomerID);
+        }
+
+        [ConditionalFact]
         public virtual void Null_conditional_simple()
         {
             var c = Expression.Parameter(typeof(Customer));
@@ -6318,6 +6336,16 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
 
                 Assert.Equal(6, query.Count);
             }
+        }
+
+        [ConditionalFact]
+        public virtual void DefaultIfEmpty_in_subquery()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs/*.Where(c => c.CustomerID.StartsWith("F"))*/
+                 from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                 where o != null
+                 select new { c.CustomerID, o.OrderID }));
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
